@@ -104,6 +104,11 @@ public class ViewAdminHome {
 	protected static Button button_ListUsers = new Button("List All Users");
 	protected static Button button_AddRemoveRoles = new Button("Add/Remove Roles");
 	protected static Alert alertNotImplemented = new Alert(AlertType.INFORMATION);
+	
+	//added gui 4 elements for setonetime password
+	protected static Label label_SelectUserForPassword = new Label("Select User: ");
+	protected static ComboBox<String> combobox_SelectUserForPassword = new ComboBox<String>();
+	protected static Alert alertPasswordGenerated = new Alert(AlertType.INFORMATION);
 
 	// This is a separator and it is used to partition the GUI for various tasks
 	private static Line line_Separator4 = new Line(20, 525, width-20,525);
@@ -248,10 +253,25 @@ public class ViewAdminHome {
 		button_ManageInvitations.setOnAction((event) -> 
 			{ControllerAdminHome.manageInvitations(); });
 	
+//------// SET ONE TIME PASSWORD METHOD IMPLEMENTED
+		// Implemented by: Tyler McClelland
+		// Function: this method sends a one time password to a user such that they can log into their
+		// 			 account.
 		setupButtonUI(button_SetOnetimePassword, "Dialog", 16, 250, Pos.CENTER, 20, 320);
-		button_SetOnetimePassword.setOnAction((event) -> 
-			{ControllerAdminHome.setOnetimePassword(); });
+		button_SetOnetimePassword.setOnAction((event) -> ControllerAdminHome.setOnetimePassword());
+		//setupLabelUI(label_SelectUserForPassword, "Arial", 16, 300, Pos.BASELINE_LEFT, 280, 320);
 
+		setupComboBoxUI(combobox_SelectUserForPassword, "Dialog", 16, 200, 290, 320);
+
+		// Here is where I implement the dropdown userlist
+		List<String> userList = theDatabase.getUserList();
+		combobox_SelectUserForPassword.setItems(FXCollections.observableArrayList(userList));
+		combobox_SelectUserForPassword.getSelectionModel().select(0);
+
+		// Set up the alert for password generation
+		alertPasswordGenerated.setTitle("One-Time Password Generated");
+		alertPasswordGenerated.setHeaderText("One-Time Password was generated and sent");
+//------
 		setupButtonUI(button_DeleteUser, "Dialog", 16, 250, Pos.CENTER, 20, 370);
 		button_DeleteUser.setOnAction((event) -> {ControllerAdminHome.deleteUser(); });
 
@@ -280,6 +300,7 @@ public class ViewAdminHome {
     		combobox_SelectRole, button_SendInvitation, line_Separator3,
     		button_ManageInvitations,
     		button_SetOnetimePassword,
+    		/*label_SelectUserForPassword,*/ combobox_SelectUserForPassword, //added for setonetimepassword
     		button_DeleteUser,
     		button_ListUsers,
     		button_AddRemoveRoles,

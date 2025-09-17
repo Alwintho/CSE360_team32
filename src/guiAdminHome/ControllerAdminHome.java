@@ -105,11 +105,46 @@ public class ControllerAdminHome {
 	 * this function has not yet been implemented. </p>
 	 */
 	protected static void setOnetimePassword () {
-		System.out.println("\n*** WARNING ***: One-Time Password Not Yet Implemented");
-		ViewAdminHome.alertNotImplemented.setTitle("*** WARNING ***");
-		ViewAdminHome.alertNotImplemented.setHeaderText("One-Time Password Issue");
-		ViewAdminHome.alertNotImplemented.setContentText("One-Time Password Not Yet Implemented");
-		ViewAdminHome.alertNotImplemented.showAndWait();
+		// Get the selected user from the dropdown
+		String selectedUser = (String) ViewAdminHome.combobox_SelectUserForPassword.getValue();
+		
+		// Check if a valid user is selected (not the default "<Select a User>" option)
+		if (selectedUser == null || selectedUser.equals("<Select a User>")) {
+			ViewAdminHome.alertNotImplemented.setTitle("*** WARNING ***");
+			ViewAdminHome.alertNotImplemented.setHeaderText("User Selection Issue");
+			ViewAdminHome.alertNotImplemented.setContentText("Please select a valid user from the dropdown.");
+			ViewAdminHome.alertNotImplemented.showAndWait();
+			return;
+		}
+		
+		// Verify the user exists in the database
+		if (!theDatabase.doesUserExist(selectedUser)) {
+			ViewAdminHome.alertNotImplemented.setTitle("*** WARNING ***");
+			ViewAdminHome.alertNotImplemented.setHeaderText("User Not Found");
+			ViewAdminHome.alertNotImplemented.setContentText("The selected user does not exist in the database.");
+			ViewAdminHome.alertNotImplemented.showAndWait();
+			return;
+		}
+		
+		// call the database helper to generate the one-time-password
+		String oneTimePassword = theDatabase.generateOneTimePassword(selectedUser);
+		
+		// get users email
+		String userEmailAddress = theDatabase.getEmailAddress(selectedUser);
+		
+		// Create the message to display and print to console
+		String msg = "One-time password: " + oneTimePassword + " was generated for user: " + 
+				selectedUser + " and sent to: " + userEmailAddress;
+		
+		// show the result of the op in the console
+		System.out.println(msg);
+		
+		// show the alert to admin
+		ViewAdminHome.alertPasswordGenerated.setContentText(msg);
+		ViewAdminHome.alertPasswordGenerated.showAndWait();
+		
+		// reset to default selection
+		ViewAdminHome.combobox_SelectUserForPassword.getSelectionModel().select(0);
 	}
 	
 	/**********

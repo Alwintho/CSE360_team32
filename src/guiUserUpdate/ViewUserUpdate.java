@@ -13,6 +13,8 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import entityClasses.User;
 
+import inputVerify.Password;
+
 /*******
  * <p> Title: ViewUserUpdate Class. </p>
  * 
@@ -271,18 +273,44 @@ public class ViewUserUpdate {
 //	    	else label_CurrentFirstName.setText(newName);
 //	     	});        
        
-        // password
+		// UPDATE PASSWORD METHOD IMPLEMENTED
+		// Implemented by: Tyler McClelland
+		// Function: This method allows a user to click a update password button and update their password.
         setupLabelUI(label_Password, "Arial", 18, 190, Pos.BASELINE_RIGHT, 5, 150);
         setupLabelUI(label_CurrentPassword, "Arial", 18, 260, Pos.BASELINE_LEFT, 200, 150);
         setupButtonUI(button_UpdatePassword, "Dialog", 18, 275, Pos.CENTER, 500, 143);
         button_UpdatePassword.setOnAction((event) -> {result = dialogUpdatePassword.showAndWait();
-	    	result.ifPresent(name -> theDatabase.updatePassword(theUser.getUserName(), result.get()));
-	    	theDatabase.getUserAccountDetails(theUser.getUserName());
-	     	String newPassword = theDatabase.getCurrentPassword();
-	       	theUser.setPassword(newPassword);
-	    	if (newPassword == null || newPassword.length() < 1)label_CurrentPassword.setText("<none>");
-	    	else label_CurrentPassword.setText(newPassword);
-	     	});
+            
+            if (result.isPresent()) {
+                String newPassword = result.get();
+                
+                // Validate the password using the Password class
+                String passwordValidationMessage = Password.evaluatePassword(newPassword);
+                
+                if (!passwordValidationMessage.isEmpty()) {
+                    // Password validation failed - show error in another dialog
+                    TextInputDialog errorDialog = new TextInputDialog("");
+                    errorDialog.setTitle("Password Validation Error");
+                    errorDialog.setHeaderText("The password you entered has validation errors:");
+                    errorDialog.setContentText(passwordValidationMessage);
+                    errorDialog.getEditor().setEditable(false); // Make it read-only so it's just informational
+                    errorDialog.showAndWait();
+                    return; // Don't update the password
+                }
+                
+                // Password validation passed - proceed with update
+                theDatabase.updatePassword(theUser.getUserName(), newPassword);
+                theDatabase.getUserAccountDetails(theUser.getUserName());
+                String updatedPassword = theDatabase.getCurrentPassword();
+                theUser.setPassword(updatedPassword);
+                
+                if (updatedPassword == null || updatedPassword.length() < 1) {
+                    label_CurrentPassword.setText("<none>");
+                } else {
+                    label_CurrentPassword.setText(updatedPassword);
+                }
+            }
+        });
         
         // First Name
         setupLabelUI(label_FirstName, "Arial", 18, 190, Pos.BASELINE_RIGHT, 5, 200);

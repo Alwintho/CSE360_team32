@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import java.util.Random;
+
 import entityClasses.User;
 
 /*******
@@ -817,7 +819,9 @@ public class Database {
 	 * @param newPassword is the new password for the user
 	 *  
 	 */
-	//update the password
+	// UPDATE PASSWORD DB IMPLEMENTATION
+	// Implemented by: Tyler McClelland
+	// Function: This DB method updates a users password in the database
 	public void updatePassword(String username, String newPassword) {
 		String query = "UPDATE userDB SET password = ? WHERE username = ?";
 	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
@@ -830,6 +834,42 @@ public class Database {
 	    }
 	}
 	
+	// GENERATE ONE TIME PASSWORD DB IMPLEMENTATION
+	// Implemented by: Tyler McClelland
+	// Function: This DB method updates a users password in the database with the onetime password they were given
+	public String generateOneTimePassword(String username) {
+		String oneTimePassword = "";
+		
+		Random ran = new Random();
+		
+		String setA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		String setB = "abcdefghijklmnopqrstuvwxyz";
+		String setC = "0123456789";
+		String setD = "~`!@#$%^&*()_-+={}[]|\\\\:;\\\"'<>,.?/";
+		
+		StringBuilder temp = new StringBuilder();
+		
+		for (int i = 0; i < 4; i++) {
+			temp.append(setA.charAt(ran.nextInt(setA.length())));
+			temp.append(setB.charAt(ran.nextInt(setB.length())));
+			temp.append(setC.charAt(ran.nextInt(setC.length())));
+			temp.append(setD.charAt(ran.nextInt(setD.length())));
+		}
+		
+		oneTimePassword = temp.toString();
+		
+		String query = "UPDATE userDB SET password = ? WHERE username = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)){
+			pstmt.setString(1, oneTimePassword);
+			pstmt.setString(2, username);
+			pstmt.executeUpdate();
+			currentPassword = oneTimePassword;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return oneTimePassword;
+	}
 	
 	/*******
 	 * <p> Method: boolean getUserAccountDetails(String username) </p>
@@ -929,6 +969,7 @@ public class Database {
 		}
 		return false;
 	}
+	
 	
 	
 	// Attribute getters for the current user

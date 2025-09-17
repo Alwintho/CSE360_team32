@@ -32,7 +32,7 @@ public class ControllerNewAccount {
 	 * 
 	 * The method reaches batch to the view page and to fetch the information needed rather than
 	 * passing that information as parameters.
-	 * 
+	 *  
 	 */	
 	protected static void doCreateUser() {
 		

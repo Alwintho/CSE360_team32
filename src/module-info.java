@@ -1,4 +1,4 @@
-	module HW1 {								
+	module CSE360_team32 {								
 	requires javafx.controls;
 	requires java.sql;
 	
