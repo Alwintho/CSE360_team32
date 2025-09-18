@@ -206,10 +206,28 @@ public class ControllerAdminHome {
 	 * 
 	 * @param emailAddress	This String holds what is expected to be an email address
 	 */
-	protected static boolean invalidEmailAddress(String emailAddress) {
+	public static boolean invalidEmailAddress(String emailAddress) {
 		if (emailAddress.length() == 0) {
 			ViewAdminHome.alertEmailError.setContentText(
-					"Correct the email address and try again.");
+					"Email address cannot be empty.");
+			ViewAdminHome.alertEmailError.showAndWait();
+			return true;
+		}
+		
+		String EMAIL_ADDRESS_PATTERN = 
+				"^(?!\\.)(?!.*\\.\\.)[A-Za-z0-9._%+-]+(?<!\\.)@" +
+			    "(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\\.)+" +
+			    "(com|org|edu|net|gov)$";
+		
+		if (!emailAddress.matches(EMAIL_ADDRESS_PATTERN)) {
+			ViewAdminHome.alertEmailError.setContentText(
+					"Invalid email address.\n\nChecklist for a valid email:\n" +
+					" - Must contain exactly one '@' symbol\n" +
+					" - Local part (before @) can use letters, numbers, . _ % + -\n" +
+					" - Cannot start or end with a dot, and no consecutive dots\n" +
+					" - Domain part must contain dots (example.com)\n" +
+					" - Each domain label must start/end with a letter or number\n" +
+					" - Must end with .com, .org, .edu, .net, or .gov");
 			ViewAdminHome.alertEmailError.showAndWait();
 			return true;
 		}
