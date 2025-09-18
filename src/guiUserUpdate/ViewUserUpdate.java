@@ -369,17 +369,30 @@ public class ViewUserUpdate {
      		});
         
         // Email Address
+       // Email Address (UPDATED)
         setupLabelUI(label_EmailAddress, "Arial", 18, 190, Pos.BASELINE_RIGHT, 5, 400);
         setupLabelUI(label_CurrentEmailAddress, "Arial", 18, 260, Pos.BASELINE_LEFT, 200, 400);
         setupButtonUI(button_UpdateEmailAddress, "Dialog", 18, 275, Pos.CENTER, 500, 393);
-        button_UpdateEmailAddress.setOnAction((event) -> {result = dialogUpdateEmailAddresss.showAndWait();
-    		result.ifPresent(name -> theDatabase.updateEmailAddress(theUser.getUserName(), result.get()));
-    		theDatabase.getUserAccountDetails(theUser.getUserName());
-    		String newEmail = theDatabase.getCurrentEmailAddress();
-           	theUser.setEmailAddress(newEmail);
-        	if (newEmail == null || newEmail.length() < 1)label_CurrentEmailAddress.setText("<none>");
-        	else label_CurrentEmailAddress.setText(newEmail);
- 			});
+        button_UpdateEmailAddress.setOnAction((event) -> {
+        	result = dialogUpdateEmailAddresss.showAndWait();
+    		result.ifPresent(newEmail -> {
+    			// Validate format
+    			if (guiAdminHome.ControllerAdminHome.invalidEmailAddress(newEmail)) return;
+    			// Check if already used
+    			if (theDatabase.emailaddressHasBeenUsed(newEmail)) {
+    				guiAdminHome.ViewAdminHome.alertEmailError.setContentText(
+    					"That email address is already in use.");
+    				guiAdminHome.ViewAdminHome.alertEmailError.showAndWait();
+    				return;
+    			}
+    			// Perform update
+    			theDatabase.updateEmailAddress(theUser.getUserName(), newEmail);
+    			theDatabase.getUserAccountDetails(theUser.getUserName());
+    			String updatedEmail = theDatabase.getCurrentEmailAddress();
+    			theUser.setEmailAddress(updatedEmail);
+    			label_CurrentEmailAddress.setText((updatedEmail == null || updatedEmail.isEmpty()) ? "<none>" : updatedEmail);
+    		});
+        });
         
         // Set up the button to proceed to this user's home page
         setupButtonUI(button_ProceedToUserHomePage, "Dialog", 18, 300, 
